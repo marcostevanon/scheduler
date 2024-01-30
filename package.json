@@ -1,0 +1,13 @@
+{
+  "devDependencies": {
+    "ts-node": "^10.9.2",
+    "typescript": "^5.3.3"
+  },
+  "dependencies": {
+    "@types/google-apps-script": "^1.0.79",
+    "dayjs": "^1.11.10"
+  },
+  "scripts": {
+    "start": "ts-node src/Code.ts"
+  }
+}
