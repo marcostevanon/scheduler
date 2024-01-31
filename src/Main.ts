@@ -1,8 +1,5 @@
 import type { Dayjs } from "dayjs";
-import {
-  availabilityRaw as availabilityRawLocal,
-  operationsRaw as operationsRawLocal,
-} from "./Data";
+import { availabilityRawLocal, operationsRawLocal } from "./Data";
 import { Operation } from "./types/Operation";
 
 declare const dayjs: Dayjs;
@@ -233,70 +230,7 @@ export function plan() {
 //   dataFine: new Date(),
 // })
 
-// stamparlo nel foglio
+// print in the new sheet
 
-// function assignMachineSlots(operations, availability) {
-//   const machineSlots = {};
-
-//   operations.forEach((operation) => {
-//     const machine = operation.Machine;
-//     const indexMST = operation["Index MST"];
-//     const requiredTime = operation.Time;
-
-//     if (
-//       !machineSlots[machine] ||
-//       indexMST < machineSlots[machine]["Index MST"]
-//     ) {
-//       machineSlots[machine] = {
-//         indexMST,
-//         availabilitySlot: null,
-//         requiredTime,
-//       };
-//     }
-//   });
-
-//   availability.forEach((availabilitySlot) => {
-//     const date = Object.keys(availabilitySlot)[0];
-//     const { machine, availabilityStart, availabilityEnd } =
-//       availabilitySlot[date];
-
-//     if (machineSlots[machine]) {
-//       const { indexMST, requiredTime } = machineSlots[machine];
-//       const availabilityStartObj = new Date(date + " " + availabilityStart);
-//       const availabilityEndObj = new Date(date + " " + availabilityEnd);
-
-//       // Check if the availability slot is valid for the required time
-//       if (
-//         availabilityEndObj - availabilityStartObj >=
-//         requiredTime * 60 * 60 * 1000
-//       ) {
-//         machineSlots[machine].availabilitySlot = {
-//           date,
-//           availabilityStart,
-//           availabilityEnd,
-//         };
-//       }
-//     }
-//   });
-
-//   const resultArray = Object.entries(machineSlots).map(([machine, slots]) => {
-//     return { machine, ...slots };
-//   });
-
-//   return resultArray;
-// }
-
-// function calculateIndex(operations) {
-//   const oreTrascorse =
-//     (new Date(dataConsegna) - new Date(dataProgrammazione)) / (1000 * 60 * 60);
-//   return oreTrascorse - oreResidue;
-// }
-
-// function calcolaIndice() {
-//   // (data consegna - data della programmazione(o data disponibiltà)) *24
-//   //   - ore residue totali (di tutte le fasi del OP considerato)
-//   // NB nel caso una fase è già stata lavorata, non considero quel tempo per il calcolo del nuovo indice (dovrebbe essere implicita quando rimuovo le fasi già lavorate)
-// }
-
-// // NOTE
-// // - aggiungere programmazione notturna
+// NOTE
+// - aggiungere programmazione notturna

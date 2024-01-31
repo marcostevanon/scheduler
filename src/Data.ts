@@ -1,4 +1,4 @@
-export const operationsRaw = [
+export const operationsRawLocal = [
   ["OP", "FASE", "Data Consegna", "Macchina", "Tempo", "Disponibile da"],
   [1, 10, "2024-02-10T23:00:00.000Z", "mu170", 1, "2024-01-31T23:00:00.000Z"],
   [1, 20, "2024-02-10T23:00:00.000Z", "mu180", 2, "2024-01-31T23:00:00.000Z"],
@@ -6,7 +6,7 @@ export const operationsRaw = [
   [3, 40, "2024-02-11T23:00:00.000Z", "mu170", 2, "2024-01-31T23:00:00.000Z"],
 ];
 
-export const availabilityRaw = [
+export const availabilityRawLocal = [
   ["", "mu170", "mu180"],
   ["2024-02-02T23:00:00.000Z", "06:00-21:00", "06:00-21:00"],
   ["2024-02-03T23:00:00.000Z", "06:00-21:00", "06:00-21:00"],
