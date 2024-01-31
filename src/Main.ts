@@ -1,5 +1,8 @@
 import type { Dayjs } from "dayjs";
-import { availabilityRaw, operationsRaw } from "./Data";
+import {
+  availabilityRaw as availabilityRawLocal,
+  operationsRaw as operationsRawLocal,
+} from "./Data";
 import { Operation } from "./types/Operation";
 
 declare const dayjs: Dayjs;
@@ -114,34 +117,73 @@ function prepareAvailability(availabilityRaw: AvailabilityRawTable) {
   return createAvailabilityArray(availabilityRaw);
 }
 
-function calculateIndex(operation: Operation): number {
+function calculateIndex(operation: Operation, operations: Operation[]): number {
   const deliveryDate = _dayjs(operation.deliveryDate);
   const availableFrom = _dayjs(operation.availableFrom);
-  const remainingTimeInHours = operation.remainingTime;
-
+  const remainingTimeInHours = calculateRemainingHours(operation, operations);
   const indexInHours =
     deliveryDate.diff(availableFrom, "hour") - remainingTimeInHours;
-
   return indexInHours;
 }
 
-function plan() {
-  // const operationsRaw = SpreadsheetApp.getActive().getSheetByName('Operazioni').getDataRange().getValues()
-  // const availabilityRaw = SpreadsheetApp.getActive().getSheetByName('Disponibilità').getDataRange().getValues()
+function calculateRemainingHours(
+  operation: Operation,
+  operations: Operation[]
+): number {
+  const sameOpEntries = operations.filter(
+    (o) => o.operation === operation.operation
+  );
+  const totalRemainingHours = sameOpEntries.reduce(
+    (total, o) => total + o.remainingTime,
+    0
+  );
+
+  return totalRemainingHours;
+}
+
+function getTableData(): {
+  operationsRaw: OperationRawTable;
+  availabilityRaw: AvailabilityRawTable;
+} {
+  if (typeof SpreadsheetApp !== "undefined") {
+    const spreadsheet = SpreadsheetApp.getActive();
+    const operationsSheet = spreadsheet.getSheetByName("Operazioni");
+    const availabilitySheet = spreadsheet.getSheetByName("Disponibilità");
+
+    if (!operationsSheet || !availabilitySheet) {
+      console.log("Sheet not found");
+      return { operationsRaw: [], availabilityRaw: [] };
+    }
+
+    const operationsRaw = operationsSheet.getDataRange().getValues();
+    const availabilityRaw = availabilitySheet.getDataRange().getValues();
+    return { operationsRaw, availabilityRaw };
+  } else {
+    return {
+      operationsRaw: operationsRawLocal,
+      availabilityRaw: availabilityRawLocal,
+    };
+  }
+}
+
+export function plan() {
+  const { operationsRaw, availabilityRaw } = getTableData();
 
   const operations = prepareOperations(operationsRaw);
-  console.log("plan ~ operations:", operations);
-
   const availability = prepareAvailability(availabilityRaw);
-  console.log("plan ~ availability:", JSON.stringify(availability, null, 2));
+
+  availability.forEach((availabilitySlot) => {
+    const date = Object.keys(availabilitySlot)[0];
+    const { machine, timeSlots } = availabilitySlot[date];
+    console.log(_dayjs(date).format("YYYY-MM-DD"), machine, timeSlots);
+  });
 
   const operationsWithIndex = operations.map((operation) => {
-    const index = calculateIndex(operation);
+    const index = calculateIndex(operation, operations);
     return { ...operation, index };
   });
 
   console.log(
-    "operationsWithIndex ~ operationsWithIndex:",
     operationsWithIndex.map((op) => ({
       ...op,
       deliveryDate: op.deliveryDate.format("YYYY-MM-DD HH:mm"),
@@ -191,8 +233,6 @@ function plan() {
 // })
 
 // stamparlo nel foglio
-
-plan();
 
 // function assignMachineSlots(operations, availability) {
 //   const machineSlots = {};

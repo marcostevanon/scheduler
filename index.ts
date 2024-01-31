@@ -1,2 +1,2 @@
-import "./src/Ui";
-import "./src/Main";
+import { plan } from "./src/Main";
+plan();
