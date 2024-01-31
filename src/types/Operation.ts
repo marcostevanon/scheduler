@@ -12,5 +12,10 @@ export interface Operation {
 }
 
 export interface AssignedOperation extends Operation {
-  assignedSlot: AvailabilitySlot;
+  assignedSlot: AvailabilitySlotWithDates;
+}
+
+interface AvailabilitySlotWithDates {
+  startDate: Dayjs;
+  endDate: Dayjs;
 }

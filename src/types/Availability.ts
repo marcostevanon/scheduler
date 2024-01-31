@@ -1,3 +1,5 @@
+import type { Dayjs } from "dayjs";
+
 export interface Availability {
   date: string;
   machine: string;

@@ -4,6 +4,7 @@ import { Availability, AvailabilitySlot } from "./types/Availability";
 import { AssignedOperation, Operation } from "./types/Operation";
 
 declare const dayjs: Dayjs;
+declare const isSameOrBefore: Dayjs;
 
 const _dayjs = getDayjs();
 
@@ -24,15 +25,15 @@ function getDayjs() {
 }
 
 function loadDayJs() {
+  // @ts-ignore
+  dayjs.extend(isSameOrBefore);
   return dayjs;
 }
 
 function loadLocalDayJs() {
   const _dayjs = require("dayjs");
-  const isBetween = require("dayjs/plugin/isBetween");
-  const isSameOrAfter = require("dayjs/plugin/isSameOrAfter");
-  _dayjs.extend(isBetween);
-  _dayjs.extend(isSameOrAfter);
+  const isSameOrBefore = require("dayjs/plugin/isSameOrBefore");
+  _dayjs.extend(isSameOrBefore);
   return _dayjs;
 }
 
@@ -128,11 +129,7 @@ function prepareAvailability(
       const availabilityRow = availabilityRaw[i][index + 1];
       const timeSlots = parseAvailabilityTimeRange(availabilityRow);
 
-      const availability: Availability = {
-        date: date,
-        machine: machine,
-        timeSlots: timeSlots,
-      };
+      const availability: Availability = { date, machine, timeSlots };
 
       availabilities.push(availability);
     });
@@ -189,7 +186,17 @@ export function plan() {
 
   // assign machine slots and remove from operations array
   const programmazione = assignMachineSlots(operationsSorted, availability);
-  console.log("plan ~ programmazione:", programmazione);
+  console.log(
+    "plan ~ programmazione:",
+    programmazione.map((p) => ({
+      ...p,
+      availableFrom: p.availableFrom.format("YYYY-MM-DD HH:mm"),
+      deliveryDate: p.deliveryDate.format("YYYY-MM-DD HH:mm"),
+      start: p.assignedSlot.startDate.format("YYYY-MM-DD HH:mm"),
+      end: p.assignedSlot.endDate.format("YYYY-MM-DD HH:mm"),
+      assignedSlot: undefined,
+    }))
+  );
 
   // print in the new sheet
 }
@@ -200,19 +207,78 @@ function assignMachineSlots(
 ): AssignedOperation[] {
   const assignedOperations: AssignedOperation[] = [];
 
-  availabilies.forEach((availabily) => {
-    availabily.date;
-    availabily.machine;
-    availabily.timeSlots;
+  // I want to assign operations to the first available time range for the machine
+  // If the operation is longer than the time range, I want to assign it to the next available time range
+  // If the operation is 1hour longer (remainingTime) i want to get the frist available time range that is at least 1 hour long
+  // and assign the operation to that time range creating an availability operation object
+  // phases are important becouse an operation with phase 20 cannot be scheduled before an operation with phase 10
+  // when I assigned an operation to a time range, I want to remove it from the operations array
+  let remainingOperations = [...operations];
 
-    const operationsCopy = [...operations];
-    // I want to assign operations to the first available time range for the machine
-    // If the operation is longer than the time range, I want to assign it to the next available time range
-    // If the operation is 1hour longer (remainingTime) i want to get the frist available time range that is at least 1 hour long
-    // and assign the operation to that time range creating an availability operation object
-    // phases are important becouse an operation with phase 20 cannot be scheduled before an operation with phase 10
-    // when I assigned an operation to a time range, I want to remove it from the operations array
-  });
+  for (let j = 0; j < availabilies.length; j++) {
+    const availability = availabilies[j];
+
+    // Sort remaining operations by index and phase
+    remainingOperations.sort((a, b) => {
+      if (a.index === b.index) {
+        return a.phase - b.phase;
+      }
+      return a.index - b.index;
+    });
+
+    for (let i = 0; i < remainingOperations.length; i++) {
+      const operation = remainingOperations[i];
+
+      if (operation.machine !== availability.machine) continue;
+
+      let timeSlotAssignes: boolean = false;
+      availability.timeSlots.forEach((timeSlot, timeSlotIndex) => {
+        if (timeSlotAssignes) return;
+
+        // Check if the operation with the same identifier is already planned
+        const sameOpEntries = assignedOperations
+          .filter((o) => o.operation === operation.operation)
+          .sort((a, b) => b.phase - a.phase);
+
+        const { start, end } = timeSlot;
+        const slotStart = _dayjs(`${availability.date} ${start}`);
+        const slotEnd = _dayjs(`${availability.date} ${end}`);
+        const operationStart =
+          sameOpEntries.length > 0
+            ? _dayjs(sameOpEntries[0].assignedSlot.endDate)
+            : slotStart;
+        const operationEnd =
+          sameOpEntries.length > 0
+            ? _dayjs(sameOpEntries[0].assignedSlot.endDate).add(
+                operation.remainingTime,
+                "hour"
+              )
+            : slotStart.add(operation.remainingTime, "hour");
+
+        if (operationEnd.isSameOrBefore(slotEnd)) {
+          const assignedOperation: AssignedOperation = {
+            ...operation,
+            machine: availability.machine,
+            assignedSlot: {
+              startDate: operationStart,
+              endDate: operationEnd,
+            },
+          };
+          assignedOperations.push(assignedOperation);
+          remainingOperations.splice(i, 1);
+
+          const updatedStartTime = _dayjs(
+            assignedOperation.assignedSlot.endDate
+          );
+          availability.timeSlots[timeSlotIndex].start =
+            updatedStartTime.format("HH:mm");
+
+          timeSlotAssignes = true;
+          return;
+        }
+      });
+    }
+  }
 
   return assignedOperations;
 }
