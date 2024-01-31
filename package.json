@@ -8,6 +8,8 @@
     "dayjs": "^1.11.10"
   },
   "scripts": {
-    "start": "ts-node src/Code.ts"
+    "start": "ts-node index.ts",
+    "pull": "clasp pull",
+    "push": "clasp push"
   }
 }
