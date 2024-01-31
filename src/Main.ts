@@ -4,7 +4,6 @@ import { Availability, AvailabilitySlot } from "./types/Availability";
 import { AssignedOperation, Operation } from "./types/Operation";
 
 declare const dayjs: Dayjs;
-declare const isSameOrBefore: Dayjs;
 
 const _dayjs = getDayjs();
 
@@ -192,20 +191,25 @@ function assignMachineSlots(
           .filter((o) => o.operation === operation.operation)
           .sort((a, b) => b.phase - a.phase);
 
+        const isSaveAvailabilityConfiguration =
+          sameOpEntries.length > 0 &&
+          sameOpEntries[0].assignedSlot.startDate.isSame(
+            availability.date,
+            "day"
+          );
+
         const { start, end } = timeSlot;
         const slotStart = _dayjs(`${availability.date} ${start}`);
         const slotEnd = _dayjs(`${availability.date} ${end}`);
-        const operationStart =
-          sameOpEntries.length > 0
-            ? _dayjs(sameOpEntries[0].assignedSlot.endDate)
-            : slotStart;
-        const operationEnd =
-          sameOpEntries.length > 0
-            ? _dayjs(sameOpEntries[0].assignedSlot.endDate).add(
-                operation.remainingTime,
-                "hour"
-              )
-            : slotStart.add(operation.remainingTime, "hour");
+        const operationStart = isSaveAvailabilityConfiguration
+          ? _dayjs(sameOpEntries[0].assignedSlot.endDate)
+          : slotStart;
+        const operationEnd = isSaveAvailabilityConfiguration
+          ? _dayjs(sameOpEntries[0].assignedSlot.endDate).add(
+              operation.remainingTime,
+              "hour"
+            )
+          : slotStart.add(operation.remainingTime, "hour");
 
         if (operationEnd.isSameOrBefore(slotEnd)) {
           const assignedOperation: AssignedOperation = {
@@ -271,7 +275,6 @@ export function plan() {
     }))
   );
 
-  // print in the new sheet
   const spreadsheet = SpreadsheetApp.getActive();
   const sheet = spreadsheet.getSheetByName("Programmazione");
   if (!sheet) {
