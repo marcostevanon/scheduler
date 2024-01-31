@@ -26,7 +26,7 @@ function getDayjs() {
 
 function loadDayJs() {
   // @ts-ignore
-  dayjs.extend(isSameOrBefore);
+  dayjs.extend(dayjs_plugin_isSameOrBefore);
   return dayjs;
 }
 
@@ -162,45 +162,6 @@ function calculateIndex(operation: Operation, operations: Operation[]): number {
   return indexInHours;
 }
 
-export function plan() {
-  // get data
-  const { operationsRaw, availabilityRaw } = getTableData();
-
-  // prepare data
-  const operations = prepareOperations(operationsRaw);
-  const availability = prepareAvailability(availabilityRaw);
-
-  // calculate index
-  const operationsWithIndex = operations.map((operation) => {
-    const index = calculateIndex(operation, operations);
-    return { ...operation, index };
-  });
-
-  // sort by index and phase
-  const operationsSorted = operationsWithIndex.sort((a, b) => {
-    if (a.index === b.index) {
-      return a.phase - b.phase;
-    }
-    return a.index - b.index;
-  });
-
-  // assign machine slots and remove from operations array
-  const programmazione = assignMachineSlots(operationsSorted, availability);
-  console.log(
-    "plan ~ programmazione:",
-    programmazione.map((p) => ({
-      ...p,
-      availableFrom: p.availableFrom.format("YYYY-MM-DD HH:mm"),
-      deliveryDate: p.deliveryDate.format("YYYY-MM-DD HH:mm"),
-      start: p.assignedSlot.startDate.format("YYYY-MM-DD HH:mm"),
-      end: p.assignedSlot.endDate.format("YYYY-MM-DD HH:mm"),
-      assignedSlot: undefined,
-    }))
-  );
-
-  // print in the new sheet
-}
-
 function assignMachineSlots(
   operations: Operation[],
   availabilies: Availability[]
@@ -218,14 +179,6 @@ function assignMachineSlots(
   for (let j = 0; j < availabilies.length; j++) {
     const availability = availabilies[j];
 
-    // Sort remaining operations by index and phase
-    remainingOperations.sort((a, b) => {
-      if (a.index === b.index) {
-        return a.phase - b.phase;
-      }
-      return a.index - b.index;
-    });
-
     for (let i = 0; i < remainingOperations.length; i++) {
       const operation = remainingOperations[i];
 
@@ -235,7 +188,6 @@ function assignMachineSlots(
       availability.timeSlots.forEach((timeSlot, timeSlotIndex) => {
         if (timeSlotAssignes) return;
 
-        // Check if the operation with the same identifier is already planned
         const sameOpEntries = assignedOperations
           .filter((o) => o.operation === operation.operation)
           .sort((a, b) => b.phase - a.phase);
@@ -283,7 +235,74 @@ function assignMachineSlots(
   return assignedOperations;
 }
 
-// print in the new sheet
+export function plan() {
+  // get data
+  const { operationsRaw, availabilityRaw } = getTableData();
+
+  // prepare data
+  const operations = prepareOperations(operationsRaw);
+  const availability = prepareAvailability(availabilityRaw);
+
+  // calculate index
+  const operationsWithIndex = operations.map((operation) => {
+    const index = calculateIndex(operation, operations);
+    return { ...operation, index };
+  });
+
+  // sort by index and phase
+  const operationsSorted = operationsWithIndex.sort((a, b) => {
+    if (a.index === b.index) {
+      return a.phase - b.phase;
+    }
+    return a.index - b.index;
+  });
+
+  // assign machine slots and remove from operations array
+  const programmazione = assignMachineSlots(operationsSorted, availability);
+  console.log(
+    "plan ~ programmazione:",
+    programmazione.map((p) => ({
+      ...p,
+      availableFrom: p.availableFrom.format("YYYY-MM-DD HH:mm"),
+      deliveryDate: p.deliveryDate.format("YYYY-MM-DD HH:mm"),
+      start: p.assignedSlot.startDate.format("YYYY-MM-DD HH:mm"),
+      end: p.assignedSlot.endDate.format("YYYY-MM-DD HH:mm"),
+      assignedSlot: undefined,
+    }))
+  );
+
+  // print in the new sheet
+  const spreadsheet = SpreadsheetApp.getActive();
+  const sheet = spreadsheet.getSheetByName("Programmazione");
+  if (!sheet) {
+    console.log("Sheet not found");
+    return;
+  }
+
+  const headers = [
+    "OP",
+    "FASE",
+    "Macchina",
+    "Tempo",
+    "Data Consegna",
+    "Disponibile da",
+    "Inizio",
+    "Fine",
+  ];
+  const data = programmazione.map((p) => [
+    p.operation,
+    p.phase,
+    p.machine,
+    p.remainingTime,
+    p.deliveryDate.format("YYYY-MM-DD HH:mm"),
+    p.availableFrom.format("YYYY-MM-DD HH:mm"),
+    p.assignedSlot.startDate.format("YYYY-MM-DD HH:mm"),
+    p.assignedSlot.endDate.format("YYYY-MM-DD HH:mm"),
+  ]);
+  sheet.clear();
+  sheet.getRange(1, 1, 1, headers.length).setValues([headers]);
+  sheet.getRange(2, 1, data.length, data[0].length).setValues(data);
+}
 
 // NOTE
 // - aggiungere programmazione notturna
