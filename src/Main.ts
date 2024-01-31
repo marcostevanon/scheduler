@@ -108,7 +108,7 @@ function prepareOperations(operationsRaw: OperationRawTable): Operation[] {
 
 function parseAvailabilityTimeRange(timeRange: string): AvailabilitySlot[] {
   const timeSlots = timeRange.split(",").map((slot) => {
-    const [start, end] = slot.trim().split("-");
+    const [start, end] = slot ? slot.trim().split("-") : ["", ""];
     return { start: start.trim(), end: end.trim() };
   });
 
@@ -267,8 +267,8 @@ export function plan() {
     "plan ~ programmazione:",
     programmazione.map((p) => ({
       ...p,
-      availableFrom: p.availableFrom.format("YYYY-MM-DD HH:mm"),
-      deliveryDate: p.deliveryDate.format("YYYY-MM-DD HH:mm"),
+      availableFrom: p.availableFrom.format("YYYY-MM-DD"),
+      deliveryDate: p.deliveryDate.format("YYYY-MM-DD"),
       start: p.assignedSlot.startDate.format("YYYY-MM-DD HH:mm"),
       end: p.assignedSlot.endDate.format("YYYY-MM-DD HH:mm"),
       assignedSlot: undefined,
