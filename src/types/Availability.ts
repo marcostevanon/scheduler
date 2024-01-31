@@ -1,6 +1,10 @@
 export interface Availability {
   date: string;
   machine: string;
-  availabilityStart: string;
-  availabilityEnd: string;
+  timeSlots: AvailabilitySlot[];
+}
+
+export interface AvailabilitySlot {
+  start: string;
+  end: string;
 }
