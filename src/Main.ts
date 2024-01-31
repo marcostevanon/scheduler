@@ -167,8 +167,10 @@ function getTableData(): {
 }
 
 export function plan() {
+  // get data
   const { operationsRaw, availabilityRaw } = getTableData();
 
+  // prepare data
   const operations = prepareOperations(operationsRaw);
   const availability = prepareAvailability(availabilityRaw);
 
@@ -178,21 +180,20 @@ export function plan() {
     console.log(_dayjs(date).format("YYYY-MM-DD"), machine, timeSlots);
   });
 
+  // calculate index
   const operationsWithIndex = operations.map((operation) => {
     const index = calculateIndex(operation, operations);
     return { ...operation, index };
   });
 
-  console.log(
-    operationsWithIndex.map((op) => ({
+  operationsWithIndex.forEach((op) => {
+    console.log({
       ...op,
       deliveryDate: op.deliveryDate.format("YYYY-MM-DD HH:mm"),
       availableFrom: op.availableFrom.format("YYYY-MM-DD HH:mm"),
-    }))
-  );
+    });
+  });
 }
-
-// calculate index
 
 // const programmazione = assignMachineSlots(operazioni, disponibilta);
 // console.log(programmazione);
