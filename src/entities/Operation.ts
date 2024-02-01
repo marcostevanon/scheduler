@@ -1,4 +1,5 @@
 import type { Dayjs } from "dayjs";
+import type { AvailabilitySlot } from "./Availability";
 
 export class Operation {
   operation: number;
@@ -40,6 +41,27 @@ export class Operation {
     this.index = index;
   }
 
+  toPlainObject() {
+    const {
+      operation,
+      phase,
+      machine,
+      remainingTime,
+      deliveryDate,
+      availableFrom,
+      index,
+    } = this;
+    return {
+      operation,
+      phase,
+      machine,
+      remainingTime,
+      deliveryDate,
+      availableFrom,
+      index,
+    };
+  }
+
   toJSON() {
     const {
       operation,
@@ -55,19 +77,51 @@ export class Operation {
       phase,
       machine,
       remainingTime,
+      index,
       deliveryDate: deliveryDate.format("YYYY-MM-DD"),
       availableFrom: availableFrom.format("YYYY-MM-DD"),
-      index,
     };
   }
 }
 
-export interface AssignedOperation
-  extends Omit<Operation, "toJSON" | "setIndex"> {
-  assignedSlot: AvailabilitySlotWithDates;
-}
+export class AssignedOperation extends Operation {
+  assignedSlot: AvailabilitySlot;
 
-interface AvailabilitySlotWithDates {
-  startDate: Dayjs;
-  endDate: Dayjs;
+  constructor(operationData: {
+    operation: number;
+    phase: number;
+    machine: string;
+    remainingTime: number;
+    deliveryDate: Dayjs;
+    availableFrom: Dayjs;
+    index?: number;
+    assignedSlot: AvailabilitySlot;
+  }) {
+    super(operationData);
+    this.assignedSlot = operationData.assignedSlot;
+  }
+
+  toJSON() {
+    const {
+      operation,
+      phase,
+      machine,
+      remainingTime,
+      deliveryDate,
+      availableFrom,
+      index,
+      assignedSlot,
+    } = this;
+    return {
+      operation,
+      phase,
+      machine,
+      remainingTime,
+      index,
+      deliveryDate: deliveryDate.format("YYYY-MM-DD"),
+      availableFrom: availableFrom.format("YYYY-MM-DD"),
+      start: assignedSlot.start.format("YYYY-MM-DD HH:mm"),
+      end: assignedSlot.end.format("YYYY-MM-DD HH:mm"),
+    };
+  }
 }
