@@ -3,7 +3,7 @@ export const operationsRawLocal = [
   [1, 10, new Date("2024-01-20").toISOString(), "MU170", 1, new Date("2024-01-15").toISOString()],
   [1, 20, new Date("2024-01-20").toISOString(), "MU180", 2, new Date("2024-01-15").toISOString()],
   [2, 30, new Date("2024-01-20").toISOString(), "MU170", 12,new Date("2024-01-15").toISOString()],
-  [2, 40, new Date("2024-01-20").toISOString(), "MU180", 2, new Date("2024-01-15").toISOString()],
+  [2, 40, new Date("2024-01-20").toISOString(), "MU180", 3, new Date("2024-01-15").toISOString()],
 ];
 
 export const availabilityRawLocal = [
@@ -193,7 +193,7 @@ export const availabilityRawLocal = [
   ],
   [
     "2024-02-01T23:00:00.000Z",
-    "06:00-21:00",
+    "07:00-21:00",
     "06:00-21:00",
     "06:00-21:00",
     "06:00-21:00",
@@ -204,9 +204,10 @@ export const availabilityRawLocal = [
     "06:00-21:00",
     "06:00-21:00",
   ],
+  ["2024-02-02T23:00:00.000Z", "", "", "", "", "", "", "", "", "", ""],
   [
-    "2024-02-02T23:00:00.000Z",
-    "06:00-21:00",
+    "2024-02-03T23:00:00.000Z",
+    "07:00-21:00",
     "06:00-21:00",
     "06:00-21:00",
     "06:00-21:00",
@@ -217,5 +218,4 @@ export const availabilityRawLocal = [
     "06:00-21:00",
     "06:00-21:00",
   ],
-  ["2024-02-03T23:00:00.000Z", "", "", "", "", "", "", "", "", "", ""],
 ];
