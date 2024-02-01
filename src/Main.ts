@@ -26,13 +26,17 @@ function getDayjs() {
 function loadDayJs() {
   // @ts-ignore
   dayjs.extend(dayjs_plugin_isSameOrBefore);
+  // @ts-ignore
+  dayjs.extend(dayjs_plugin_isSameOrAfter);
   return dayjs;
 }
 
 function loadLocalDayJs() {
   const _dayjs = require("dayjs");
   const isSameOrBefore = require("dayjs/plugin/isSameOrBefore");
+  const isSameOrAfter = require("dayjs/plugin/isSameOrAfter");
   _dayjs.extend(isSameOrBefore);
+  _dayjs.extend(isSameOrAfter);
   return _dayjs;
 }
 
@@ -167,6 +171,11 @@ function assignMachineSlots(
 ): AssignedOperation[] {
   const assignedOperations: AssignedOperation[] = [];
 
+  // filter out availabilities that are before today (included)
+  availabilies = availabilies.filter((a) =>
+    _dayjs(a.date).isSameOrAfter(_dayjs().add(1, "day"), "day")
+  );
+
   // I want to assign operations to the first available time range for the machine
   // If the operation is longer than the time range, I want to assign it to the next available time range
   // If the operation is 1hour longer (remainingTime) i want to get the frist available time range that is at least 1 hour long
@@ -178,10 +187,14 @@ function assignMachineSlots(
   for (let j = 0; j < availabilies.length; j++) {
     const availability = availabilies[j];
 
-    for (let i = 0; i < remainingOperations.length; i++) {
-      const operation = remainingOperations[i];
+    let availabiliesAssigned = false;
 
-      if (operation.machine !== availability.machine) continue;
+    while (remainingOperations.length > 0) {
+      if (availabiliesAssigned) break;
+
+      const operation = remainingOperations[0];
+
+      if (operation.machine !== availability.machine) break;
 
       let timeSlotAssignes: boolean = false;
       availability.timeSlots.forEach((timeSlot, timeSlotIndex) => {
@@ -191,12 +204,11 @@ function assignMachineSlots(
           .filter((o) => o.operation === operation.operation)
           .sort((a, b) => b.phase - a.phase);
 
-        const isSaveAvailabilityConfiguration =
-          sameOpEntries.length > 0 &&
-          sameOpEntries[0].assignedSlot.startDate.isSame(
-            availability.date,
-            "day"
-          );
+        const isSaveAvailabilityConfiguration = sameOpEntries.length > 0;
+        // && sameOpEntries[0].assignedSlot.startDate.isSame(
+        //   availability.date,
+        //   "day"
+        // );
 
         const { start, end } = timeSlot;
         const slotStart = _dayjs(`${availability.date} ${start}`);
@@ -221,7 +233,7 @@ function assignMachineSlots(
             },
           };
           assignedOperations.push(assignedOperation);
-          remainingOperations.splice(i, 1);
+          remainingOperations.splice(0, 1);
 
           const updatedStartTime = _dayjs(
             assignedOperation.assignedSlot.endDate
@@ -231,6 +243,8 @@ function assignMachineSlots(
 
           timeSlotAssignes = true;
           return;
+        } else {
+          availabiliesAssigned = true;
         }
       });
     }
@@ -261,7 +275,6 @@ export function plan() {
     return a.index - b.index;
   });
 
-  // assign machine slots and remove from operations array
   const programmazione = assignMachineSlots(operationsSorted, availability);
   console.log(
     "plan ~ programmazione:",
@@ -271,40 +284,39 @@ export function plan() {
       deliveryDate: p.deliveryDate.format("YYYY-MM-DD"),
       start: p.assignedSlot.startDate.format("YYYY-MM-DD HH:mm"),
       end: p.assignedSlot.endDate.format("YYYY-MM-DD HH:mm"),
-      assignedSlot: undefined,
     }))
   );
 
-  const spreadsheet = SpreadsheetApp.getActive();
-  const sheet = spreadsheet.getSheetByName("Programmazione");
-  if (!sheet) {
-    console.log("Sheet not found");
-    return;
-  }
+  // const spreadsheet = SpreadsheetApp.getActive();
+  // const sheet = spreadsheet.getSheetByName("Programmazione");
+  // if (!sheet) {
+  //   console.log("Sheet not found");
+  //   return;
+  // }
 
-  const headers = [
-    "OP",
-    "FASE",
-    "Macchina",
-    "Tempo",
-    "Data Consegna",
-    "Disponibile da",
-    "Inizio",
-    "Fine",
-  ];
-  const data = programmazione.map((p) => [
-    p.operation,
-    p.phase,
-    p.machine,
-    p.remainingTime,
-    p.deliveryDate.format("YYYY-MM-DD HH:mm"),
-    p.availableFrom.format("YYYY-MM-DD HH:mm"),
-    p.assignedSlot.startDate.format("YYYY-MM-DD HH:mm"),
-    p.assignedSlot.endDate.format("YYYY-MM-DD HH:mm"),
-  ]);
-  sheet.clear();
-  sheet.getRange(1, 1, 1, headers.length).setValues([headers]);
-  sheet.getRange(2, 1, data.length, data[0].length).setValues(data);
+  // const headers = [
+  //   "OP",
+  //   "FASE",
+  //   "Macchina",
+  //   "Tempo",
+  //   "Data Consegna",
+  //   "Disponibile da",
+  //   "Inizio",
+  //   "Fine",
+  // ];
+  // const data = programmazione.map((p) => [
+  //   p.operation,
+  //   p.phase,
+  //   p.machine,
+  //   p.remainingTime,
+  //   p.deliveryDate.format("YYYY-MM-DD"),
+  //   p.availableFrom.format("YYYY-MM-DD"),
+  //   p.assignedSlot.startDate.format("YYYY-MM-DD HH:mm"),
+  //   p.assignedSlot.endDate.format("YYYY-MM-DD HH:mm"),
+  // ]);
+  // sheet.clear();
+  // sheet.getRange(1, 1, 1, headers.length).setValues([headers]);
+  // sheet.getRange(2, 1, data.length, data[0].length).setValues(data);
 }
 
 // NOTE
