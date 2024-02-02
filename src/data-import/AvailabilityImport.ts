@@ -4,15 +4,7 @@ import { Spreadsheet, SpreadsheetImport } from "./SpreadsheetImport";
 
 export namespace AvailabilityImport {
   declare const dayjs: Dayjs;
-  let _dayjs: any;
-  if (typeof dayjs === "undefined") _dayjs = require("dayjs");
-  else {
-    // @ts-ignore
-    dayjs.extend(dayjs_plugin_isSameOrBefore);
-    // @ts-ignore
-    dayjs.extend(dayjs_plugin_isSameOrAfter);
-    _dayjs = dayjs;
-  }
+  const _dayjs = typeof dayjs === "undefined" ? require("dayjs") : dayjs;
 
   type AvailabilityTable = string[][];
 
