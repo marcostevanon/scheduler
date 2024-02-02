@@ -28,18 +28,21 @@ export namespace CalculateIndex {
   ): number {
     const deliveryDate = _dayjs(operation.deliveryDate);
     const availableFrom = _dayjs(operation.availableFrom);
-    const remainingTimeInHours = calculateRemainingHours(operation, operations);
+    const remainingTimeInHours = calculateTotalRemainingHours(
+      operation,
+      operations
+    );
     const indexInHours =
       deliveryDate.diff(availableFrom, "hour") - remainingTimeInHours;
     return indexInHours;
   }
 
-  function calculateRemainingHours(
+  function calculateTotalRemainingHours(
     operation: Operation,
     operations: Operation[]
   ): number {
     const sameOpEntries = operations.filter(
-      (o) => o.operation === operation.operation
+      (o) => o.code === operation.code
     );
     const totalRemainingHours = sameOpEntries.reduce(
       (total, o) => total + o.remainingTime,

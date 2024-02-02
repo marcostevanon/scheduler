@@ -3,7 +3,7 @@ import { Operation } from "../entities/Operation";
 import { Spreadsheet, SpreadsheetImport } from "./SpreadsheetImport";
 
 const operationsMap: Record<string, keyof Operation> = {
-  OP: "operation",
+  OP: "code",
   FASE: "phase",
   "Data Consegna": "deliveryDate",
   Macchina: "machine",

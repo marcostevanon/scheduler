@@ -2,7 +2,7 @@ import type { Dayjs } from "dayjs";
 import type { AvailabilitySlot } from "./Availability";
 
 export class Operation {
-  operation: number;
+  code: number;
   phase: number;
   machine: string;
   remainingTime: number;
@@ -11,7 +11,7 @@ export class Operation {
   index?: number;
 
   constructor(operationData: {
-    operation: number;
+    code: number;
     phase: number;
     machine: string;
     remainingTime: number;
@@ -20,7 +20,7 @@ export class Operation {
     index?: number;
   }) {
     const {
-      operation,
+      code,
       phase,
       machine,
       remainingTime,
@@ -28,7 +28,7 @@ export class Operation {
       availableFrom,
       index,
     } = operationData;
-    this.operation = operation;
+    this.code = code;
     this.phase = phase;
     this.machine = machine;
     this.remainingTime = remainingTime;
@@ -43,7 +43,7 @@ export class Operation {
 
   toJSON() {
     const {
-      operation,
+      code,
       phase,
       machine,
       remainingTime,
@@ -52,7 +52,7 @@ export class Operation {
       index,
     } = this;
     return {
-      operation,
+      code,
       phase,
       machine,
       remainingTime,
@@ -67,7 +67,7 @@ export class AssignedOperation extends Operation {
   assignedSlot: AvailabilitySlot;
 
   constructor(operationData: {
-    operation: number;
+    code: number;
     phase: number;
     machine: string;
     remainingTime: number;
@@ -82,7 +82,7 @@ export class AssignedOperation extends Operation {
 
   toJSON() {
     const {
-      operation,
+      code,
       phase,
       machine,
       remainingTime,
@@ -92,7 +92,7 @@ export class AssignedOperation extends Operation {
       assignedSlot,
     } = this;
     return {
-      operation,
+      code,
       phase,
       machine,
       remainingTime,

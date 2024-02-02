@@ -79,7 +79,7 @@ export namespace GenerateSchedule {
           availability.slots.forEach((timeSlot) => {
             // get assigned operation and check if this operation is already assigned
             const alreadyAssignedOperation = assignedOperations.find(
-              (o) => o.operation === operation.operation
+              (o) => o.code === operation.code
             );
 
             const assignedSlot =
@@ -120,7 +120,7 @@ export namespace GenerateSchedule {
               assignedOperations.push(assignedOperation);
               const operationIndex = remainingOperations.findIndex(
                 (o) =>
-                  o.operation === operation.operation &&
+                  o.code === operation.code &&
                   o.phase === operation.phase
               );
               remainingOperations.splice(operationIndex, 1);

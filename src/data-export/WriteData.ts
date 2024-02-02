@@ -21,7 +21,7 @@ export namespace DataExport {
       "Fine",
     ];
     const data = schedule.map((p) => [
-      p.operation,
+      p.code,
       p.phase,
       p.machine,
       p.remainingTime,
