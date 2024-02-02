@@ -24,7 +24,7 @@ export namespace DataExport {
       p.code,
       p.phase,
       p.machine,
-      p.remainingTime,
+      p.timeLeft,
       p.deliveryDate.format("YYYY-MM-DD"),
       p.availableFrom.format("YYYY-MM-DD"),
       p.assignedSlot.start.format("YYYY-MM-DD HH:mm"),

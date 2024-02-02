@@ -5,7 +5,7 @@ export class Operation {
   code: number;
   phase: number;
   machine: string;
-  remainingTime: number;
+  timeLeft: number;
   deliveryDate: Dayjs;
   availableFrom: Dayjs;
   index?: number;
@@ -14,7 +14,7 @@ export class Operation {
     code: number;
     phase: number;
     machine: string;
-    remainingTime: number;
+    timeLeft: number;
     deliveryDate: Dayjs;
     availableFrom: Dayjs;
     index?: number;
@@ -23,7 +23,7 @@ export class Operation {
       code,
       phase,
       machine,
-      remainingTime,
+      timeLeft,
       deliveryDate,
       availableFrom,
       index,
@@ -31,7 +31,7 @@ export class Operation {
     this.code = code;
     this.phase = phase;
     this.machine = machine;
-    this.remainingTime = remainingTime;
+    this.timeLeft = timeLeft;
     this.deliveryDate = deliveryDate;
     this.availableFrom = availableFrom;
     if (index) this.index = index;
@@ -46,7 +46,7 @@ export class Operation {
       code,
       phase,
       machine,
-      remainingTime,
+      timeLeft: timeLeft,
       deliveryDate,
       availableFrom,
       index,
@@ -55,7 +55,7 @@ export class Operation {
       code,
       phase,
       machine,
-      remainingTime,
+      timeLeft,
       index,
       deliveryDate: deliveryDate.format("YYYY-MM-DD"),
       availableFrom: availableFrom.format("YYYY-MM-DD"),
@@ -70,7 +70,7 @@ export class AssignedOperation extends Operation {
     code: number;
     phase: number;
     machine: string;
-    remainingTime: number;
+    timeLeft: number;
     deliveryDate: Dayjs;
     availableFrom: Dayjs;
     index?: number;
@@ -85,7 +85,7 @@ export class AssignedOperation extends Operation {
       code,
       phase,
       machine,
-      remainingTime,
+      timeLeft: timeLeft,
       deliveryDate,
       availableFrom,
       index,
@@ -95,7 +95,7 @@ export class AssignedOperation extends Operation {
       code,
       phase,
       machine,
-      remainingTime,
+      timeLeft,
       index,
       deliveryDate: deliveryDate.format("YYYY-MM-DD"),
       availableFrom: availableFrom.format("YYYY-MM-DD"),

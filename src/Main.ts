@@ -14,7 +14,7 @@ export function plan() {
     availabilies
   ).sort((a, b) => a.assignedSlot.start.diff(b.assignedSlot.start));
   console.log(
-    "plan ~ programmazione:",
+    "plan:",
     schedule.map((p) => p.toJSON())
   );
 
@@ -22,5 +22,5 @@ export function plan() {
   DataExport.writeData(schedule);
 }
 
-// NOTE
-// - aggiungere programmazione notturna
+// Notes
+// - add night operation feature

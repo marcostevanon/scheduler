@@ -88,19 +88,18 @@ export namespace GenerateSchedule {
                 timeSlot.start,
                 "day"
               )
-                ? new AvailabilitySlot({
+                ? // start with end of already assigned operation
+                  new AvailabilitySlot({
                     start: alreadyAssignedOperation.assignedSlot.end,
                     end: _dayjs(alreadyAssignedOperation.assignedSlot.end).add(
-                      operation.remainingTime,
+                      operation.timeLeft,
                       "hour"
                     ),
                   })
-                : new AvailabilitySlot({
+                : // start with start of time slot
+                  new AvailabilitySlot({
                     start: timeSlot.start,
-                    end: _dayjs(timeSlot.start).add(
-                      operation.remainingTime,
-                      "hour"
-                    ),
+                    end: _dayjs(timeSlot.start).add(operation.timeLeft, "hour"),
                   });
 
             if (
@@ -119,9 +118,7 @@ export namespace GenerateSchedule {
 
               assignedOperations.push(assignedOperation);
               const operationIndex = remainingOperations.findIndex(
-                (o) =>
-                  o.code === operation.code &&
-                  o.phase === operation.phase
+                (o) => o.code === operation.code && o.phase === operation.phase
               );
               remainingOperations.splice(operationIndex, 1);
               operationsToSchedule.shift();

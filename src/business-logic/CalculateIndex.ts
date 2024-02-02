@@ -41,11 +41,9 @@ export namespace CalculateIndex {
     operation: Operation,
     operations: Operation[]
   ): number {
-    const sameOpEntries = operations.filter(
-      (o) => o.code === operation.code
-    );
+    const sameOpEntries = operations.filter((o) => o.code === operation.code);
     const totalRemainingHours = sameOpEntries.reduce(
-      (total, o) => total + o.remainingTime,
+      (total, o) => total + o.timeLeft,
       0
     );
 

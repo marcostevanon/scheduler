@@ -7,7 +7,7 @@ const operationsMap: Record<string, keyof Operation> = {
   FASE: "phase",
   "Data Consegna": "deliveryDate",
   Macchina: "machine",
-  Tempo: "remainingTime",
+  Tempo: "timeLeft",
   "Disponibile da": "availableFrom",
 };
 
