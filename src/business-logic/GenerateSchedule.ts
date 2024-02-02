@@ -1,13 +1,12 @@
 import type { Dayjs } from "dayjs";
 import { Availability, AvailabilitySlot } from "../entities/Availability";
 import { AssignedOperation, Operation } from "../entities/Operation";
-import { loadLocalDayJs } from "../utils/DayjsHelper";
 import { CalculateIndex } from "./CalculateIndex";
 
 export namespace GenerateSchedule {
   declare const dayjs: Dayjs;
   let _dayjs: any;
-  if (typeof dayjs === "undefined") _dayjs = loadLocalDayJs();
+  if (typeof dayjs === "undefined") _dayjs = require("dayjs");
   else {
     // @ts-ignore
     dayjs.extend(dayjs_plugin_isSameOrBefore);
@@ -21,9 +20,14 @@ export namespace GenerateSchedule {
     availabilities: Availability[]
   ): AssignedOperation[] {
     // filter out availabilities that are before today (included)
-    availabilities = availabilities.filter((a) =>
-      _dayjs(a.date).isSameOrAfter(_dayjs().add(1, "day"), "day")
-    );
+    availabilities = availabilities.filter((a) => {
+      const availabilityDate: Dayjs = _dayjs(a.date);
+      const todayPlus1 = _dayjs().add(1, "day");
+      return (
+        availabilityDate.isSame(todayPlus1, "day") ||
+        availabilityDate.isAfter(todayPlus1, "day")
+      );
+    });
 
     // Optimization, delete availabilities of machines that doesn't exist among operations and with empty slots
     const machines = operations.map((o) => o.machine);

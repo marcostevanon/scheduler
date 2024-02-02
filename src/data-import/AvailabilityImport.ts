@@ -1,12 +1,11 @@
 import type { Dayjs } from "dayjs";
 import { Availability, AvailabilitySlot } from "../entities/Availability";
-import { loadLocalDayJs } from "../utils/DayjsHelper";
 import { Spreadsheet, SpreadsheetImport } from "./SpreadsheetImport";
 
 export namespace AvailabilityImport {
   declare const dayjs: Dayjs;
   let _dayjs: any;
-  if (typeof dayjs === "undefined") _dayjs = loadLocalDayJs();
+  if (typeof dayjs === "undefined") _dayjs = require("dayjs");
   else {
     // @ts-ignore
     dayjs.extend(dayjs_plugin_isSameOrBefore);

@@ -1,6 +1,5 @@
 import type { Dayjs } from "dayjs";
 import { Operation } from "../entities/Operation";
-import { loadLocalDayJs } from "../utils/DayjsHelper";
 import { Spreadsheet, SpreadsheetImport } from "./SpreadsheetImport";
 
 const operationsMap: Record<string, keyof Operation> = {
@@ -15,7 +14,7 @@ const operationsMap: Record<string, keyof Operation> = {
 export namespace OperationImport {
   declare const dayjs: Dayjs;
   let _dayjs: any;
-  if (typeof dayjs === "undefined") _dayjs = loadLocalDayJs();
+  if (typeof dayjs === "undefined") _dayjs = require("dayjs");
   else {
     // @ts-ignore
     dayjs.extend(dayjs_plugin_isSameOrBefore);
