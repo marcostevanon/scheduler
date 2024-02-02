@@ -109,7 +109,7 @@ export namespace GenerateSchedule {
             ) {
               // means that assignedSlot is inside availability slot
               const assignedOperation = new AssignedOperation({
-                ...operation.toPlainObject(),
+                ...operation,
                 assignedSlot,
               });
 

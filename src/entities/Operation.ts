@@ -41,27 +41,6 @@ export class Operation {
     this.index = index;
   }
 
-  toPlainObject() {
-    const {
-      operation,
-      phase,
-      machine,
-      remainingTime,
-      deliveryDate,
-      availableFrom,
-      index,
-    } = this;
-    return {
-      operation,
-      phase,
-      machine,
-      remainingTime,
-      deliveryDate,
-      availableFrom,
-      index,
-    };
-  }
-
   toJSON() {
     const {
       operation,
